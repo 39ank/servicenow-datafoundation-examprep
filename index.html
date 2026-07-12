@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServiceNow - Data Foundation Exam Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="brand">
+      <span class="brand-mark">P100</span>
+      <div>
+        <div class="brand-title">ServiceNow - Data Foundation Exam Prep</div>
+        <div class="brand-sub" id="brand-question-count">Loading questions · reconciled by priority</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-view="home">Home</button>
+      <button class="tab" data-view="practice">Practice</button>
+      <button class="tab" data-view="weak">Weak Queue</button>
+      <button class="tab" data-view="browse">Browse</button>
+      <button class="tab" data-view="mock">Mock Exam</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="view active" id="view-home">
+    <div class="queue-panel">
+      <div class="queue-panel-head">
+        <h2>Reconciliation Queue</h2>
+        <span id="home-total-tag">0 / 0 mastered</span>
+      </div>
+      <div class="lanes">
+        <div class="lane new">
+          <div class="lane-priority">PRIORITY 100 · UNSEEN</div>
+          <div class="lane-count" id="count-new">0</div>
+          <div class="lane-label">New</div>
+        </div>
+        <div class="lane learning">
+          <div class="lane-priority">PRIORITY 200 · IN PROGRESS</div>
+          <div class="lane-count" id="count-learning">0</div>
+          <div class="lane-label">Learning</div>
+        </div>
+        <div class="lane weak">
+          <div class="lane-priority">PRIORITY 300 · NEEDS REVIEW</div>
+          <div class="lane-count" id="count-weak">0</div>
+          <div class="lane-label">Weak</div>
+        </div>
+        <div class="lane mastered">
+          <div class="lane-priority">PRIORITY 400 · RECONCILED</div>
+          <div class="lane-count" id="count-mastered">0</div>
+          <div class="lane-label">Mastered</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-grid">
+      <div class="action-card" data-goto="practice">
+        <span class="badge">SMART QUEUE</span>
+        <h3>Practice</h3>
+        <p>Randomized multichoice drawn from everything you haven't mastered yet.</p>
+      </div>
+      <div class="action-card" data-goto="weak">
+        <span class="badge">HIGH PRECEDENCE</span>
+        <h3>Weak Queue</h3>
+        <p id="weak-card-sub">Only the questions you've gotten wrong, hardest first.</p>
+      </div>
+      <div class="action-card" data-goto="browse">
+        <span class="badge">READ-ONLY</span>
+        <h3>Browse All</h3>
+        <p>Every question and answer, searchable, no quizzing.</p>
+      </div>
+      <div class="action-card" data-goto="mock">
+        <span class="badge">70% TO PASS</span>
+        <h3>Mock Exam</h3>
+        <p>A random slice of the full bank, timed, scored — simulates the real thing.</p>
+      </div>
+    </div>
+
+    <div class="action-card" style="cursor:default;">
+      <h3>Sync across devices</h3>
+      <p style="margin-bottom:12px;">Progress and mock exam history are saved on this device only. To bring another device up to date, copy a sync code here and paste it in on the other device.</p>
+      <div class="btn-row" style="flex-wrap:wrap;">
+        <button class="btn primary" id="sync-copy-btn">Copy sync code</button>
+        <button class="btn" id="sync-show-import">Paste a code</button>
+      </div>
+      <div id="sync-import-box" style="display:none;margin-top:12px;">
+        <textarea id="sync-import-input" class="search-input" style="width:100%;min-height:70px;font-family:var(--font-mono);font-size:11px;" placeholder="Paste sync code here…"></textarea>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn primary" id="sync-import-btn">Load code</button>
+        </div>
+      </div>
+      <div id="sync-status" style="margin-top:10px;font-size:12px;color:var(--text-dim);"></div>
+    </div>
+  </div>
+
+  <!-- PRACTICE -->
+  <div class="view" id="view-practice">
+    <div id="practice-batch-picker" class="action-card" style="cursor:default;margin-bottom:16px;">
+      <h3>How many this round?</h3>
+      <p style="margin-bottom:12px;">Pulls from what you haven't mastered yet. Pick a batch size to keep sessions short.</p>
+      <div class="btn-row" id="practice-batch-buttons">
+        <button class="btn batch-btn" data-size="10">10</button>
+        <button class="btn batch-btn" data-size="20">20</button>
+        <button class="btn batch-btn" data-size="30">30</button>
+        <button class="btn batch-btn" data-size="50">50</button>
+        <button class="btn batch-btn" data-size="all">All</button>
+      </div>
+    </div>
+    <div id="practice-session" style="display:none;">
+      <div class="session-bar">
+        <span id="practice-progress-label">0 / 0</span>
+        <div class="session-track"><div class="session-fill" id="practice-progress-fill" style="width:0%"></div></div>
+        <button class="btn" id="practice-change-batch">Change batch</button>
+      </div>
+      <div id="practice-question-container"></div>
+    </div>
+  </div>
+
+  <!-- WEAK QUEUE -->
+  <div class="view" id="view-weak">
+    <div id="weak-batch-picker" class="action-card" style="cursor:default;margin-bottom:16px;">
+      <h3>How many this round?</h3>
+      <p style="margin-bottom:12px;">Only questions you've missed, hardest first.</p>
+      <div class="btn-row" id="weak-batch-buttons">
+        <button class="btn batch-btn" data-size="10">10</button>
+        <button class="btn batch-btn" data-size="20">20</button>
+        <button class="btn batch-btn" data-size="30">30</button>
+        <button class="btn batch-btn" data-size="all">All</button>
+      </div>
+    </div>
+    <div id="weak-session" style="display:none;">
+      <div class="session-bar">
+        <span id="weak-progress-label">0 / 0</span>
+        <div class="session-track"><div class="session-fill" id="weak-progress-fill" style="width:0%"></div></div>
+        <button class="btn" id="weak-change-batch">Change batch</button>
+      </div>
+      <div id="weak-question-container"></div>
+    </div>
+  </div>
+
+  <!-- BROWSE -->
+  <div class="view" id="view-browse">
+    <div class="browse-controls">
+      <input class="search-input" id="browse-search" placeholder="Search questions or answers…">
+      <select class="filter-select" id="browse-filter">
+        <option value="all">All statuses</option>
+        <option value="new">New</option>
+        <option value="learning">Learning</option>
+        <option value="weak">Weak</option>
+        <option value="mastered">Mastered</option>
+      </select>
+    </div>
+    <div id="browse-list"></div>
+  </div>
+
+  <!-- MOCK EXAM -->
+  <div class="view" id="view-mock">
+    <div id="mock-intro">
+      <div class="action-card" style="cursor:default;">
+        <h3>Mock Exam</h3>
+        <p id="mock-intro-text">Pulls 75 random questions from the full bank. No hints, no feedback until the end. Pass mark set to 70% (real exam is 65% of 75) so you're practicing with a margin.</p>
+      </div>
+      <div class="btn-row" style="margin-top:14px;">
+        <button class="btn primary" id="mock-start">Start Mock Exam</button>
+      </div>
+      <div id="mock-history-container" style="margin-top:20px;"></div>
+    </div>
+    <div id="mock-exam-body" style="display:none;"></div>
+    <div id="mock-results" style="display:none;"></div>
+  </div>
+
+</div>
+
+<script src="questions.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
