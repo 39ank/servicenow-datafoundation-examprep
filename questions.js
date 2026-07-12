@@ -3082,12 +3082,12 @@ const QUESTIONS = [
     "question": "A CMDB Owner starts on the CSDM journey and needs to become familiar with the CSDM domains. Drag the CMDB objects to the correct CSDM domains.\n\n**Items:** Application Service / Business Application / Business Process / Business Service\n\n**Domains:** Design and Planning domain / Foundation domain / Service Delivery domain / Sell/Consume domain",
     "options": [],
     "correct": [
-      "Business Process → Design and Planning domain",
-      "Business Application → Foundation domain",
+      "Business Process → Foundation domain",
+      "Business Application → Design and Planning domain",
       "Application Service → Service Delivery domain",
       "Business Service → Sell/Consume domain"
     ],
-    "explanation": "Business Process belongs to the Design and Planning domain. Business Application belongs to the Foundation domain. Application Service belongs to the Service Delivery domain. Business Service belongs to the Sell/Consume domain.",
+    "explanation": "Business Process belongs to the Foundation domain. Business Application belongs to the Design and Planning domain. Application Service belongs to the Service Delivery domain. Business Service belongs to the Sell/Consume domain.",
     "multi": true,
     "dragdrop": true,
     "distractors": []
